@@ -25,4 +25,12 @@ The problem is that the entities, both objects and subjects can be ambiguous. Fo
 
 Are they the same or are they different people?
 
-The goal of this project is to provide a blocking method to have an annotator proposed pairs of entities in the data set, such that they can say whether or not they are the same person, in order to create a supervised method of deduplication. 
+The goal of this project is to provide a blocking method to have an annotator proposed pairs of entities in the data set, such that they can say whether or not they are the same person, in order to create a supervised method of deduplication.
+
+## Approach 1: Graph Based Blocking
+
+![Activity Graph](docs/activity.png)
+
+The first approach, prepared by [@bbengfort](https://github.com/bbengfort) uses a graph structure to propose pairwise comparisons. The idea is that the underlying data structure will not allow duplicates inside of relationships. That is, if John Smith <jsmith@example.com> registers for a course, and so does John Smith <johnsmith@gmail.com>; then they're definitely different people (otherwise they paid money twice?).
+
+While the semantics of this approach might not be globally consistent for all relationships (e.g. these entities may be the same and have both subscribed to the same RSS feed). It does push the problem back to an edge duplication problem, which might be easier, since there are far fewer edges between nodes. Moreover, it gives us the opportunity to compare entities across relationships and add other semantics. E.g. prerequisites: you cannot take the Machine Learning course unless you've had the Building Data Apps course.
