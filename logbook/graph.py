@@ -1,6 +1,8 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+
 from collections import Counter
+from itertools import combinations
 
 def graph_from_triples(triples, name="Logbook Activity"):
     """
@@ -31,7 +33,7 @@ def draw_activity_graph(G, layout='spring', **kwargs):
     """
     if kwargs.pop('connected', False):
         G = max(nx.connected_component_subgraphs(G), key=len)
-    
+
     cmap = {
         'person': '#67C5C2',
         'entity': '#C84127',
@@ -62,6 +64,43 @@ def draw_activity_graph(G, layout='spring', **kwargs):
     return draw(G, **defaults)
 
 
+def pairwise_comparisons(G, number=False, entity=None):
+    """
+    Produces a generator of pairs of nodes. If number is True, just returns
+    the number of possible pairwise comparisons. If entity is passed in,
+    it filters the nodes based on the entity type.
+    """
+    if number:
+        n = nx.number_of_nodes(G)
+        return (n * (n-1)) / 2
+
+    if entity is None:
+        return combinations(G.nodes_iter(), 2)
+
+    efunc = lambda (n,d): d['entity'] == entity
+    return combinations([
+            n for n, d in
+            filter(efunc, G.nodes_iter(data=True))
+        ], 2)
+
+
+def edge_blocked_comparisons(G, number=False, entity=None):
+    """
+    A generator of pairwise comparisons, that doesn't allow comparisons
+    between nodes that have an edge to the same entity.
+    """
+
+    def iterator():
+         for n1, n2 in pairwise_comparisons(G, entity=entity):
+            hood1 = frozenset(G.neighbors(n1))
+            hood2 = frozenset(G.neighbors(n2))
+            if not hood1 & hood2:
+                yield n1,n2
+
+    if number:
+        return sum(1 for n in iterator())
+    return iterator()
+
 def info(G):
     """
     Wrapper for nx.info with some other helpers.
@@ -72,7 +111,8 @@ def info(G):
 
     output  = [""]
     output.append("Number of Actions: {}".format(len(actions)))
-    output.append("Number of Pairwise Comparisons: {}".format(nx.number_of_nodes(G) ** 2))
+    output.append("Number of Pairwise Comparisons: {}".format(pairwise_comparisons(G, True)))
+    output.append("Number of Edge Blocked Comparisons: {}".format(edge_blocked_comparisons(G, True)))
     output.extend(["", "Action Counts", "-------------"])
 
     for action, count in actions.most_common():
