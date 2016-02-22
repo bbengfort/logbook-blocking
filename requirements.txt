@@ -1,0 +1,14 @@
+## CSV Reading
+unicodecsv==0.14.1
+
+## Graphs
+networkx==1.11
+decorator==4.0.9
+
+## Clustering
+scikit-learn==0.17.1
+scipy==0.17.0
+numpy==1.10.4
+
+## Pip Stuff
+wheel==0.26.0
