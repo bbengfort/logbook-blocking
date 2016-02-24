@@ -59,7 +59,7 @@ def draw_activity_graph(G, layout='spring', **kwargs):
     }
     defaults.update(kwargs)
 
-    fig = plt.figure(figsize=(16,16))
+    fig = plt.figure(figsize=(16,12))
     plt.title(G.name)
     return draw(G, **defaults)
 
